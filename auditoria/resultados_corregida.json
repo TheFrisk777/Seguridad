@@ -1,0 +1,194 @@
+[
+  {
+    "id": "T01",
+    "test": "Acceso anónimo",
+    "pass": true,
+    "observed": "HTTP 401"
+  },
+  {
+    "id": "T02",
+    "test": "SQL no público",
+    "pass": true,
+    "observed": "HTTP 404"
+  },
+  {
+    "id": "T03",
+    "test": "Configuración no pública",
+    "pass": true,
+    "observed": "HTTP 404"
+  },
+  {
+    "id": "T04",
+    "test": "Cabeceras de seguridad",
+    "pass": true,
+    "observed": "CSP, no-store, Referrer-Policy, Permissions-Policy"
+  },
+  {
+    "id": "T05",
+    "test": "Cookie HttpOnly y SameSite",
+    "pass": true,
+    "observed": "HttpOnly=true; SameSite=Lax; Secure=false solo en loopback autorizado"
+  },
+  {
+    "id": "T06",
+    "test": "CSRF inválido",
+    "pass": true,
+    "observed": "HTTP 403"
+  },
+  {
+    "id": "T07",
+    "test": "Validación del servidor",
+    "pass": true,
+    "observed": "HTTP 422"
+  },
+  {
+    "id": "T08",
+    "test": "Registro válido",
+    "pass": true,
+    "observed": "HTTP 303"
+  },
+  {
+    "id": "T09",
+    "test": "Persistencia con ID automático",
+    "pass": true,
+    "observed": "1 registro con ID generado"
+  },
+  {
+    "id": "T10",
+    "test": "Contraseña bcrypt",
+    "pass": true,
+    "observed": "Hash bcrypt verificado; valor oculto"
+  },
+  {
+    "id": "T11",
+    "test": "Duplicado sin enumeración",
+    "pass": true,
+    "observed": "HTTP 303; no duplica cuenta; respuesta uniforme"
+  },
+  {
+    "id": "T12",
+    "test": "Etiquetas en nombre",
+    "pass": true,
+    "observed": "HTTP 422"
+  },
+  {
+    "id": "T13",
+    "test": "Entrada SQL inválida",
+    "pass": true,
+    "observed": "HTTP 422; no alcanza SQL"
+  },
+  {
+    "id": "T14",
+    "test": "Comilla tratada como dato",
+    "pass": true,
+    "observed": "HTTP 401; sin error SQL ni autenticación"
+  },
+  {
+    "id": "T15",
+    "test": "Inicio de sesión válido",
+    "pass": true,
+    "observed": "HTTP 303"
+  },
+  {
+    "id": "T16",
+    "test": "Renovación del ID",
+    "pass": true,
+    "observed": "ID cambia al autenticar; valores ocultos"
+  },
+  {
+    "id": "T17",
+    "test": "Principal autenticado",
+    "pass": true,
+    "observed": "Cuenta Demo; HTTP 200"
+  },
+  {
+    "id": "T18",
+    "test": "Logout rechaza GET",
+    "pass": true,
+    "observed": "HTTP 405"
+  },
+  {
+    "id": "T19",
+    "test": "Logout POST",
+    "pass": true,
+    "observed": "HTTP 303"
+  },
+  {
+    "id": "T20",
+    "test": "Reutilizar cookie revocada",
+    "pass": true,
+    "observed": "HTTP 401"
+  },
+  {
+    "id": "T21",
+    "test": "Sin peticiones a terceros",
+    "pass": true,
+    "observed": "Solicitudes externas automáticas: 0"
+  },
+  {
+    "id": "T22",
+    "test": "Almacenamiento del navegador",
+    "pass": true,
+    "observed": "localStorage=0; sessionStorage=0"
+  },
+  {
+    "id": "T23",
+    "test": "Caducidad por inactividad",
+    "pass": true,
+    "observed": "HTTP 401; last_seen retrocedido 901 s en sesión de prueba"
+  },
+  {
+    "id": "T24",
+    "test": "Caducidad absoluta",
+    "pass": true,
+    "observed": "HTTP 401; created_at retrocedido 3601 s"
+  },
+  {
+    "id": "T25",
+    "test": "Eliminar exige reautenticación",
+    "pass": true,
+    "observed": "HTTP 401"
+  },
+  {
+    "id": "T26",
+    "test": "Eliminación de cuenta",
+    "pass": true,
+    "observed": "HTTP 303; cero filas de la cuenta de prueba"
+  },
+  {
+    "id": "T27",
+    "test": "Límite persistente de intentos",
+    "pass": true,
+    "observed": "401, 401, 401, 401, 401, 429"
+  },
+  {
+    "id": "T28",
+    "test": "Cambiar cookie no evita bloqueo",
+    "pass": true,
+    "observed": "HTTP 429"
+  },
+  {
+    "id": "T29",
+    "test": "Carrito no interpreta HTML",
+    "pass": true,
+    "observed": "Texto literal; solo imagen original del producto"
+  },
+  {
+    "id": "T30",
+    "test": "HTTP bloqueado en producción",
+    "pass": true,
+    "observed": "HTTP 426 con ALLOW_LOCAL_HTTP=0"
+  },
+  {
+    "id": "T31",
+    "test": "Error sin detalles internos",
+    "pass": true,
+    "observed": "HTTP 503; mensaje genérico ante DB_USER=root"
+  },
+  {
+    "id": "T32",
+    "test": "Aviso y minimización",
+    "pass": true,
+    "observed": "Aviso disponible; no se solicita apellido"
+  }
+]

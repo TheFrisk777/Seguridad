@@ -1,0 +1,44 @@
+[
+  {
+    "id": "B01",
+    "test": "Formulario de inicio de sesión",
+    "observed": "POST a inde.html sin action; no ejecuta PHP",
+    "pass": false
+  },
+  {
+    "id": "B02",
+    "test": "Registro con esquema original",
+    "observed": "Error: id_user sin valor por defecto",
+    "pass": false
+  },
+  {
+    "id": "B03",
+    "test": "Inicio de sesión directo",
+    "observed": "Error: tabla login inexistente",
+    "pass": false
+  },
+  {
+    "id": "B04",
+    "test": "Descarga de SQL por HTTP",
+    "observed": "HTTP 200; esquema completo descargable",
+    "pass": false
+  },
+  {
+    "id": "B05",
+    "test": "Acceso sin sesión",
+    "observed": "HTTP 200 sin denegación; cuerpo vacío",
+    "pass": false
+  },
+  {
+    "id": "B06",
+    "test": "Comilla en consulta concatenada",
+    "observed": "Error SQL visible por entrada de una comilla",
+    "pass": false
+  },
+  {
+    "id": "B07",
+    "test": "HTTPS y cabeceras",
+    "observed": "HTTP 200 sin CSP, no-store, Permissions-Policy ni obligación HTTPS",
+    "pass": false
+  }
+]

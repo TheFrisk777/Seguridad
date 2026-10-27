@@ -1,0 +1,282 @@
+[
+  {
+    "id": "VULN-01",
+    "title": "Consultas SQL construidas con entradas del usuario",
+    "group": "MASVS-CODE-4",
+    "location": "Bugambilia/conexion/inde.php",
+    "impact": 3,
+    "prob": 2,
+    "before": "B06: un correo con una comilla altera la sintaxis SQL y expone un error. El código concatena nombre, correo y contraseña derivada en SELECT e INSERT. No se demostró extracción de datos ni un acceso exitoso mediante inyección.",
+    "steps": "Importar el esquema original en la instancia de pruebas. Enviar POST a conexion/inde.php con Registrarse=1, nombre=Demo, apellido=Prueba, email=' y una contraseña ficticia. Observar el error SQL. Revisar las consultas concatenadas.",
+    "fix": "Sustituir todas las consultas con datos externos por prepare y bind_param. Validar correo antes de consultar. La base no interpreta la entrada como parte de SQL.",
+    "after": "T13 rechaza la expresión SQL con 422. T14 envía un correo válido que contiene apóstrofo y obtiene 401, sin error SQL. T08 y T15 confirman que el flujo válido funciona.",
+    "refs": "B06, T08, T13-T15",
+    "residual": "Bajo en los endpoints examinados. No sustituye la revisión de futuros endpoints.",
+    "beforefile": "Bugambilia/conexion/inde.php",
+    "beforelines": [
+      13,
+      18
+    ],
+    "afterfile": "Bugambilia/conexion/inde.php",
+    "afterlines": [
+      13,
+      16
+    ],
+    "score": 6,
+    "risk": "Medio",
+    "evidence": "E12_codigo",
+    "state": "Corregido en alcance probado"
+  },
+  {
+    "id": "VULN-02",
+    "title": "Conexión de base de datos con usuario privilegiado",
+    "group": "MASVS-STORAGE-1 y CODE-4 por adaptación web",
+    "location": "Bugambilia/conexion/conexion.php",
+    "impact": 3,
+    "prob": 2,
+    "before": "El código fija localhost, usuario root, contraseña vacía y base bugambilia. No se encontró una clave de producción en el ZIP; el riesgo procede de ejecutar la aplicación con privilegios excesivos y configuración embebida.",
+    "steps": "Leer conexion.php. Identificar el usuario root y la contraseña vacía. Revisar el alcance de privilegios que tendría la aplicación con esa configuración. No modificar cuentas del MySQL habitual del equipo.",
+    "fix": "Obtener credenciales del entorno. Rechazar root, contraseña vacía y el marcador de ejemplo. Crear una cuenta exclusiva con SELECT, INSERT, UPDATE y DELETE en la base aislada. Excluir .env y runtime de Git.",
+    "after": "T08-T17 funcionan con bugambilia_app. T31 fuerza DB_USER=root en otro servidor y recibe 503 genérico. La cuenta y contraseña aleatoria del laboratorio no se publican.",
+    "refs": "T08-T17, T31",
+    "residual": "Verificar privilegios, rotación de credenciales y ACL del servidor de destino. No se cambió el root del equipo.",
+    "beforefile": "Bugambilia/conexion/conexion.php",
+    "beforelines": [
+      1,
+      7
+    ],
+    "afterfile": "Bugambilia/conexion/conexion.php",
+    "afterlines": [
+      7,
+      13
+    ],
+    "score": 6,
+    "risk": "Medio",
+    "evidence": "E13_codigo",
+    "state": "Corregido en alcance probado"
+  },
+  {
+    "id": "VULN-03",
+    "title": "Registro e inicio de sesión incompatibles con el esquema",
+    "group": "MASVS-AUTH-1 y CODE-4 por adaptación web",
+    "location": "paginas/inde.html, conexion/inde.php y BD/bugambilia.sql",
+    "impact": 2,
+    "prob": 3,
+    "before": "B01: el formulario de acceso hace POST a su propio HTML. B02: users.id_user no tiene AUTO_INCREMENT y el INSERT no aporta ID. B03: el acceso consulta login y pass, pero el esquema contiene users y psswd.",
+    "steps": "Importar el SQL original con modo estricto. Abrir paginas/inde.html y registrar una cuenta ficticia. Observar el error id_user. Enviar el inicio de sesión directamente a conexion/inde.php y comprobar la tabla login inexistente.",
+    "fix": "Usar inde.php para generar los formularios, dirigir ambos POST al controlador, consultar users.psswd y obtener el nombre desde la base. Incorporar AUTO_INCREMENT, NOT NULL e índice UNIQUE de correo. Entregar migración para la base original.",
+    "after": "T08 crea cuenta, T09 confirma una fila con ID automático, T11 evita duplicados y T15-T17 permiten entrar a Mi cuenta. E02 muestra el error original y E07 la pantalla corregida.",
+    "refs": "B01-B03, E01-E02, E07-E08, T08-T17",
+    "residual": "Los módulos de compras, donaciones y contacto siguen como demostraciones; no se implementó procesamiento comercial.",
+    "beforefile": "Bugambilia/conexion/inde.php",
+    "beforelines": [
+      36,
+      43
+    ],
+    "afterfile": "Bugambilia/conexion/inde.php",
+    "afterlines": [
+      35,
+      42
+    ],
+    "score": 6,
+    "risk": "Medio",
+    "evidence": "E14_codigo",
+    "state": "Corregido en alcance probado"
+  },
+  {
+    "id": "VULN-04",
+    "title": "Control de acceso y ciclo de sesión incompletos",
+    "group": "MASVS-AUTH-1",
+    "location": "Bugambilia/conexion/principal.php y controlador de acceso",
+    "impact": 3,
+    "prob": 2,
+    "before": "B05 devuelve 200 sin sesión y sin denegación explícita. El principal original destruye la sesión cuando existe y redirige a bug2.html, ausente. No establece caducidad, regeneración ni cierre mediante una operación separada. La página original está vacía, por lo que no se afirma exposición de datos privados.",
+    "steps": "Solicitar principal.php sin cookies. Revisar la condición isset original y session_destroy. Buscar session_regenerate_id, last_seen, configuración HttpOnly y un endpoint de cierre; no existen en el proyecto original.",
+    "fix": "Exigir identidad en principal, renovar ID al autenticar, usar cookies HttpOnly y SameSite=Lax, caducidad inactiva de 900 s y absoluta de 3600 s. Cerrar mediante POST con CSRF y destruir la sesión y cookie.",
+    "after": "T01 devuelve 401 sin identidad. T16 verifica cambio del ID. T18-T20 demuestran cierre por POST y rechazo de la cookie anterior. T23-T24 prueban ambas caducidades mediante envejecimiento controlado de sesiones ficticias.",
+    "refs": "B05, E04, E07, T01, T05, T16-T24",
+    "residual": "Cookie Secure y transporte real requieren HTTPS. Las pruebas HTTP locales usan una excepción explícita limitada a loopback.",
+    "beforefile": "Bugambilia/conexion/principal.php",
+    "beforelines": [
+      3,
+      10
+    ],
+    "afterfile": "Bugambilia/conexion/bootstrap.php",
+    "afterlines": [
+      29,
+      36
+    ],
+    "score": 6,
+    "risk": "Medio",
+    "evidence": "E15_codigo",
+    "state": "Corregido en alcance probado"
+  },
+  {
+    "id": "VULN-05",
+    "title": "Formularios sin verificación de origen mediante CSRF",
+    "group": "MASVS-AUTH-1 y CODE-4 por adaptación web",
+    "location": "paginas/inde.html y conexion/inde.php",
+    "impact": 2,
+    "prob": 2,
+    "before": "Los POST originales no contienen ni verifican un token CSRF. Se registra la ausencia de la defensa en código; el registro roto del original impide afirmar una modificación de estado exitosa desde otro sitio.",
+    "steps": "Inspeccionar los formularios y el controlador original. Enviar una solicitud de registro sin token y verificar que alcanza las consultas de la base en lugar de ser rechazada por origen.",
+    "fix": "Generar un token aleatorio por sesión, incorporarlo como campo oculto y compararlo con hash_equals. Exigir POST y token válido en registro, acceso, cierre y eliminación.",
+    "after": "T06 envía token inválido y recibe 403. T08 y T15 completan operaciones con token correcto. T18 impide cierre mediante GET. La captura E05 muestra el rechazo; los tokens no aparecen en las evidencias.",
+    "refs": "B02, E05, T06, T08, T15, T18-T19",
+    "residual": "Mantener CSP y codificación de salida; una vulnerabilidad XSS futura podría comprometer defensas basadas en tokens.",
+    "beforefile": "Bugambilia/conexion/inde.php",
+    "beforelines": [
+      3,
+      9
+    ],
+    "afterfile": "Bugambilia/conexion/bootstrap.php",
+    "afterlines": [
+      44,
+      48
+    ],
+    "score": 4,
+    "risk": "Medio",
+    "evidence": "E16_codigo",
+    "state": "Corregido en alcance probado"
+  },
+  {
+    "id": "VULN-06",
+    "title": "Validación de entradas insuficiente en el servidor",
+    "group": "MASVS-CODE-4",
+    "location": "Bugambilia/conexion/inde.php",
+    "impact": 2,
+    "prob": 2,
+    "before": "El controlador lee campos directamente desde POST, incluso nombre y apellido durante el acceso. Confía en required del navegador, no verifica formato, tipo, longitud ni una política de contraseña. B03 produce advertencias al omitir campos.",
+    "steps": "Enviar un POST directamente al controlador omitiendo nombre o con correo inválido y contraseña breve. Comprobar la lectura de claves inexistentes y la ausencia de validación antes de SQL.",
+    "fix": "Comprobar tipos escalares, formato y límite de correo, nombre de 2 a 80 caracteres y contraseña de 12 a 72 bytes para bcrypt. Rechazar etiquetas en nombre y codificar toda salida variable. Retirar apellido, no utilizado.",
+    "after": "T07 devuelve 422 ante correo inválido y contraseña breve. T12 rechaza etiquetas. T13 rechaza una expresión SQL antes de consultar. T29 prueba construcción del carrito como texto, como endurecimiento adicional.",
+    "refs": "B03, E06, T07, T12-T14, T29",
+    "residual": "La longitud de contraseña en bytes se valida en servidor. El cliente mejora usabilidad y no decide la aceptación.",
+    "beforefile": "Bugambilia/conexion/inde.php",
+    "beforelines": [
+      3,
+      8
+    ],
+    "afterfile": "Bugambilia/conexion/inde.php",
+    "afterlines": [
+      5,
+      12
+    ],
+    "score": 4,
+    "risk": "Medio",
+    "evidence": "E17_codigo",
+    "state": "Corregido en alcance probado"
+  },
+  {
+    "id": "VULN-07",
+    "title": "Errores técnicos visibles en la respuesta",
+    "group": "MASVS-STORAGE-2 y CODE-4 por adaptación web",
+    "location": "conexion/conexion.php y conexion/inde.php",
+    "impact": 2,
+    "prob": 3,
+    "before": "B02 y B03 exponen rutas absolutas, nombres de tabla, consultas parciales y stack trace con display_errors activo en el laboratorio. La aplicación carece de manejador de excepciones. La exposición depende de la configuración PHP del servidor.",
+    "steps": "Ejecutar el original con display_errors=1. Enviar el registro válido con el esquema original y observar el error de id_user. Omitir campos en el acceso y comprobar advertencias y tabla inexistente.",
+    "fix": "Desactivar display_errors desde bootstrap y controlar excepciones con 503 genérico. Registrar solo la clase del error en un directorio privado. No registrar SQL, entradas, correos, contraseñas ni identificadores de sesión.",
+    "after": "T31 usa una configuración de base inválida y recibe 503 sin mysqli, ruta, root ni stack trace. E02 y E11 muestran el contraste. La ruta personal del original se ocultó antes de capturar.",
+    "refs": "B02-B03, E02, E11, T31",
+    "residual": "Configurar también display_errors=Off en php.ini del despliegue y aplicar ACL y rotación a los logs.",
+    "beforefile": "Bugambilia/conexion/conexion.php",
+    "beforelines": [
+      1,
+      7
+    ],
+    "afterfile": "Bugambilia/conexion/bootstrap.php",
+    "afterlines": [
+      8,
+      14
+    ],
+    "score": 6,
+    "risk": "Medio",
+    "evidence": "E18_codigo",
+    "state": "Corregido en alcance probado"
+  },
+  {
+    "id": "VULN-08",
+    "title": "Archivo de base de datos descargable desde la web",
+    "group": "MASVS-STORAGE-2 por adaptación web",
+    "location": "Bugambilia/BD/bugambilia.sql",
+    "impact": 2,
+    "prob": 3,
+    "before": "B04 obtiene HTTP 200 y descarga el esquema SQL completo. El archivo original no contiene registros personales ni contraseñas, pero revela estructura interna. No hay reglas de denegación ni separación de archivos privados.",
+    "steps": "Solicitar /Bugambilia/BD/bugambilia.sql al servidor original. Guardar la respuesta y comprobar CREATE TABLE users y los nombres de columnas. E03 representa el cuerpo real de esa respuesta.",
+    "fix": "Enrutar todas las solicitudes por router.php, permitir solo tipos y endpoints públicos, y denegar BD, archivos ocultos, runtime y rutas de escape. Mantener credenciales, logs y sesiones fuera del contenido servido.",
+    "after": "T02 devuelve 404 para el mismo SQL. T03 devuelve 404 para .env. El archivo permanece en el repositorio para instalación autorizada, pero no se entrega por HTTP bajo el servidor configurado.",
+    "refs": "B04, E03, T02-T03",
+    "residual": "Es obligatorio usar el router o reglas equivalentes del servidor. Servir directamente la carpeta como estáticos volvería a exponer el SQL.",
+    "beforefile": "Bugambilia/BD/bugambilia.sql",
+    "beforelines": [
+      1,
+      9
+    ],
+    "afterfile": "router.php",
+    "afterlines": [
+      4,
+      10
+    ],
+    "score": 6,
+    "risk": "Medio",
+    "evidence": "E19_codigo",
+    "state": "Corregido en alcance probado"
+  },
+  {
+    "id": "VULN-09",
+    "title": "Sin obligación de HTTPS ni política de seguridad del navegador",
+    "group": "MASVS-NETWORK-1",
+    "location": "Configuración de entrega y bootstrap.php",
+    "impact": 3,
+    "prob": 2,
+    "before": "B07 entrega el formulario por HTTP sin impedir el envío de credenciales por ese canal. No se suministra configuración TLS, CSP, no-store ni restricción de capacidades. No se interceptó tráfico real ni se ensayaron servicios externos.",
+    "steps": "Solicitar el formulario por HTTP al servidor original. Revisar esquema de URL y cabeceras. Repetir la petición contra la configuración corregida con ALLOW_LOCAL_HTTP=0.",
+    "fix": "Rechazar HTTP con 426 fuera del laboratorio autorizado en loopback. Activar Secure en la cookie bajo HTTPS y HSTS únicamente cuando hay TLS. Añadir CSP, no-store, nosniff, no-referrer y Permissions-Policy.",
+    "after": "T30 confirma 426 con modo de producción y T04 verifica cabeceras. T05 comprueba atributos de cookie en HTTP local, donde Secure=false está limitado a la excepción de pruebas. No se ha instalado ni validado un certificado de producción.",
+    "refs": "B07, E10, T04-T05, T30",
+    "residual": "Pendiente de cierre completo: desplegar TLS válido, verificar cadena y nombre del certificado, protocolo y cookie Secure por HTTPS. NETWORK-1 conserva NC.",
+    "beforefile": "Bugambilia/paginas/inde.html",
+    "beforelines": [
+      5,
+      12
+    ],
+    "afterfile": "Bugambilia/conexion/bootstrap.php",
+    "afterlines": [
+      20,
+      24
+    ],
+    "score": 6,
+    "risk": "Medio",
+    "evidence": "E20_codigo",
+    "state": "Mitigado con pendiente TLS"
+  },
+  {
+    "id": "VULN-10",
+    "title": "Tratamiento de datos sin información y con recursos externos",
+    "group": "MASVS-PRIVACY-1, PRIVACY-2, PRIVACY-3 y PRIVACY-4 por adaptación web",
+    "location": "Plantillas HTML, formulario y flujo de cuenta",
+    "impact": 2,
+    "prob": 2,
+    "before": "El registro solicita apellido pero el servidor no lo guarda. Varias páginas cargan fuentes y CSS externos automáticamente. No hay aviso sobre uso y conservación de datos ni opción para eliminar la cuenta. No se investigaron las prácticas de seguimiento de esos proveedores.",
+    "steps": "Revisar los link de fonts.googleapis.com, fonts.gstatic.com y cdnjs.cloudflare.com. Comparar campos del formulario con INSERT. Buscar aviso de privacidad y eliminación de cuenta; no existen en la base.",
+    "fix": "Retirar cargas externas automáticas y el apellido, informar sobre cookies, propósito y retención, y permitir eliminar la cuenta mediante contraseña actual y CSRF. Mantener enlaces sociales como navegación voluntaria.",
+    "after": "T21 registra cero solicitudes automáticas a terceros durante el flujo inspeccionado. T22 no encuentra credenciales en Web Storage. T25 exige reautenticación y T26 comprueba eliminación. T32 confirma el aviso.",
+    "refs": "E08, T21-T22, T25-T26, T32",
+    "residual": "El correo sigue siendo un identificador necesario de cuenta. PRIVACY-2 no se declara plenamente cumplido. Implementar purga programada de logs/sesiones y avisos legales antes de uso real.",
+    "beforefile": "Bugambilia/paginas/inde.html",
+    "beforelines": [
+      5,
+      12
+    ],
+    "afterfile": "Bugambilia/conexion/eliminar.php",
+    "afterlines": [
+      4,
+      9
+    ],
+    "score": 4,
+    "risk": "Medio",
+    "evidence": "E21_codigo",
+    "state": "Corregido en alcance probado"
+  }
+]
