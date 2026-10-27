@@ -7,7 +7,7 @@ Revisión académica de la aplicación web PHP del ZIP AndreyGarcia_U2Act1(1).zi
 - `unidad-ii-base`: los 63 archivos originales, sin correcciones funcionales.
 - `unidad-ii-corregida`: código corregido, pruebas e informe en `auditoria/`.
 - Destino autorizado: https://github.com/TheFrisk777/Seguridad.git
-- Las ramas están conservadas en el archivo `Seguridad.bundle` entregado con el informe. El informe distingue el estado local de la publicación remota.
+- Ambas ramas están publicadas y verificadas en GitHub: [original](https://github.com/TheFrisk777/Seguridad/tree/unidad-ii-base) y [corregida](https://github.com/TheFrisk777/Seguridad/tree/unidad-ii-corregida). También están conservadas en el archivo `Seguridad.bundle` entregado con el informe.
 
 ## Requisitos
 
