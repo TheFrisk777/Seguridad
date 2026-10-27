@@ -1,23 +1,28 @@
+<?php
+require_once __DIR__.'/../conexion/bootstrap.php';
+$messages=['registro'=>'Solicitud de registro procesada. Puedes intentar iniciar sesión.','salida'=>'Sesión cerrada.','eliminada'=>'Cuenta eliminada.'];
+$state=$_GET['estado'] ?? '';
+$message=is_string($state) ? ($messages[$state] ?? '') : '';
+?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- ESTILOS -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Barlow&display=swap" rel="stylesheet">
+    
+    
+    
     <!-- FIN DE ESTILOS-->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" 
-    integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A=="
-     crossorigin="anonymous" referrerpolicy="no-referrer">
+    
     <!-- Etiqueta que no sea escalable -->
-    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    
     <link rel="stylesheet" href="../styles/inde.css">
     <title>Bugambilia</title>
-</head>
+<link rel="stylesheet" href="../styles/seguridad.css"></head>
 
 <body>
+<div class="audit-notice"><?= h($message) ?> Usa un correo de prueba. Consulta el <a href="privacidad.html">aviso de privacidad</a>.</div>
 <header>
     <input  type="checkbox" name="" id="toggler">
     <label for="toggler" class="fas fa-bars"></label>
@@ -37,13 +42,13 @@
         
 
         <div class="iconos">
-            <a href="../paginas/carrito.html" class="fas fa-shopping-cart" style='font-size:30px'></a>
-            <a href="../paginas/inde.html" class="fas fa-user-circle" style='font-size:30px'></a>
+            <a href="../paginas/carrito.html" class="fas fa-shopping-cart" style='font-size:30px'>Carrito</a>
+            <a href="../paginas/inde.php" class="fas fa-user-circle" style='font-size:30px'>Cuenta</a>
         </div>
 </header>
 <section class="home" id="home">
     <div class="content">
-        <h3>Registrate</h2>
+        <h3>Registrate</h3>
         <span>Forma parte de nosotros</span>
         <p>Conoce esta gran comunidad, atrevete a formar parte del cambio</p>
     </div>
@@ -68,17 +73,16 @@
         <div class="form-information-childs">
             <h2>Crear una Cuenta</h2>
             <div  class="social-icons">
-                <a href="#"><i class="fa-brands fa-google-plus-g"></i></a>
-                <a href="#"><i class="fa-brands fa-instagram"></i></a>
-                <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#">Google</a>
+                <a href="#">Instagram</a>
+                <a href="#">X</a>
             </div>
             <p>o usa tu email para registrarte</p>
-            <form class="form" id="formulario"  method="POST" action="../conexion/inde.php">
-                <input type="text" placeholder="Nombre" id="nombre" name="nombre" required>
-                <input type="text" placeholder="Apellido" id="apellido" name="apellido" required>
-                <input type="email" placeholder="Correo" id="email" name="email" required>
-                <input type="password" placeholder="Contraseña" id="contraseña" name="contraseña" required> 
-                <input type="submit" value="Registrarse" name="Registrarse"> 
+            <form class="form"  method="POST" action="../conexion/inde.php">
+                <input type="text" placeholder="Nombre" id="nombre" name="nombre" minlength="2" maxlength="80" autocomplete="name" required>
+                <input type="email" placeholder="Correo"  name="email" maxlength="254" autocomplete="email" required>
+                <input type="password" placeholder="Contraseña"  name="contraseña" minlength="12" maxlength="72" autocomplete="current-password" required> 
+                <input type="hidden" name="csrf" value="<?= h($_SESSION['csrf']) ?>"><input type="submit" value="Registrarse" name="Registrarse"> 
   
             </form>
         </div>
@@ -102,15 +106,15 @@
         <div class="form-information-childs">
             <h2>Iniciar Sesión</h2>
             <div  class="social-icons">
-                <a href="#"><i class="fa-brands fa-google-plus-g"></i></a>
-                <a href="#"><i class="fa-brands fa-instagram"></i></a>
-                <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#">Google</a>
+                <a href="#">Instagram</a>
+                <a href="#">X</a>
             </div>
             <p>o iniciar sesion con una cuenta</p>
-            <form class="form" id="formulario" method="POST" >
-                <input type="email" placeholder="Correo" id="email" name="email" required>
-                <input type="password" placeholder="Contraseña" id="contraseña" name="contraseña" required>
-                <input type="submit" value="Iniciar Sesión" name="IniciarSesion">   
+            <form class="form" method="POST" action="../conexion/inde.php">
+                <input type="email" placeholder="Correo"  name="email" maxlength="254" autocomplete="email" required>
+                <input type="password" placeholder="Contraseña"  name="contraseña" minlength="12" maxlength="72" autocomplete="current-password" required>
+                <input type="hidden" name="csrf" value="<?= h($_SESSION['csrf']) ?>"><input type="submit" value="Iniciar Sesión" name="IniciarSesion">   
             </form>
         </div>
     </div>   
@@ -144,7 +148,7 @@
                 <h4>Ayuda</h4>
                 <ul>
                     <li><a href="../paginas/FAQS.html">FAQ</a></li>
-                    <li><a href="../paginas/inde.html">Registro</a></li>
+                    <li><a href="../paginas/inde.php">Registro</a></li>
                     <li><a href="../paginas/donar.html">Donaciones</a></li>
                     <li><a href="../paginas/contacto.html">Contacto</a></li>
                 </ul>
@@ -172,9 +176,9 @@
             <div class="footer-col">
                 <h4>Siguenos</h4>
                <div class="social-link">
-                <a href="https://www.facebook.com/profile.php?id=61561767431103"><i class="fab fa-facebook-f"></i></a>
-                <a href="https://www.instagram.com/bugambilia0/"><i class="fab fa-instagram"></i></a>
-                <a href="https://x.com/Bugambilia0"><i class="fab fa-twitter"></i></a>
+                <a href="https://www.facebook.com/profile.php?id=61561767431103">Facebook</a>
+                <a href="https://www.instagram.com/bugambilia0/">Instagram</a>
+                <a href="https://x.com/Bugambilia0">X</a>
 
                </div>
             </div>

@@ -1,67 +1,33 @@
-const carrito =document.getElementById('carrito');
-const elementos1=document.getElementById('lista-1');
-const lista =document.querySelector('#lista-carrito tbody');
-const vaciarCarritoBtn =document.getElementById('vaciar-carrito');
-
-cargarEventListeners();
-
-function cargarEventListeners(){
-    elementos1.addEventListener('click',comprarElemento);
-    carrito.addEventListener('click', eliminarElemento);
-    vaciarCarritoBtn.addEventListener('click', vaciarCarrito);
+'use strict';
+const carrito = document.getElementById('carrito');
+const elementos1 = document.getElementById('lista-1');
+const lista = document.querySelector('#lista-carrito tbody');
+const vaciarCarritoBtn = document.getElementById('vaciar-carrito');
+if (elementos1 && carrito && lista && vaciarCarritoBtn) {
+    elementos1.addEventListener('click', e => {
+        const buy = e.target.closest('.agregar-carrito');
+        if (!buy) return;
+        e.preventDefault();
+        const item = buy.closest('.product');
+        if (!item) return;
+        const image = item.querySelector('img');
+        const title = item.querySelector('h3');
+        const price = item.querySelector('.precio');
+        if (!image || !title || !price) return;
+        const url = new URL(image.src, location.href);
+        if (url.origin !== location.origin || !['http:', 'https:'].includes(url.protocol)) return;
+        const row = document.createElement('tr');
+        const cell = document.createElement('td');
+        const img = document.createElement('img');
+        img.src = url.href; img.width = 100; img.alt = title.textContent;
+        cell.append(img); row.append(cell);
+        for (const text of [title.textContent, price.textContent]) {
+            const td = document.createElement('td');td.textContent = text;row.append(td);
+        }
+        const td = document.createElement('td');
+        const remove = document.createElement('button');remove.type='button';remove.className='borrar';remove.textContent='X';
+        td.append(remove);row.append(td);lista.append(row);
+    });
+    carrito.addEventListener('click', e => { if (e.target.closest('.borrar')) {e.preventDefault();e.target.closest('tr').remove();} });
+    vaciarCarritoBtn.addEventListener('click', e => {e.preventDefault();lista.replaceChildren();});
 }
-
-function comprarElemento(e){
-    e.preventDefault();
-    if(e.target.classList.contains('agregar-carrito')){
-        const elemento =e.target.parentElement;
-        leerDatosElemento(elemento);
-    }
-}
-
-function leerDatosElemento(elemento){
-    const infoElemento = {
-        imagen: elemento.querySelector('img').src,
-        titulo: elemento.querySelector('h3').textContent,
-        precio: elemento.querySelector('.precio').textContent,
-        id: elemento.querySelector('a').getAttribute('id')
-    }
-    insertarCarrito(infoElemento);
-}
-
-function insertarCarrito(elemento){
-    const row=document.createElement('tr');
-    row.innerHTML=`
-    <td>
-    <img src="${elemento.imagen}" width=100>
-    </td>
-    <td>
-    ${elemento.titulo}
-    </td>
-    <td>
-    ${elemento.precio}
-    </td>
-    <td>
-    <a href="#" class="borrar" data-id=${elemento.id} > X </a>
-    </td>
-    `;
-    lista.appendChild(row);
-}
-
-function eliminarElemento(e){
-    e.preventDefault();
-    let elemento, elementoId;
-    if(e.target.classList.contains('borrar')){
-        e.target.parentElement.parentElement.remove();
-        elemento= e.target.parentElement.parentElement;
-        elementoId = elemento.querySelector('a').getAttribute('data-id');
-    }
-}
-
-function vaciarCarrito(){
-    while(lista.firstChild){
-        lista.removeChild(lista.firstChild);
-    }
-    return false;
-}
-
